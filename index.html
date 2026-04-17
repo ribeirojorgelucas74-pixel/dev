@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a0a2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NomesApp" />
+  <title>NomesApp — Gestão Inteligente</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-logo">
+    <div class="splash-icon">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect width="48" height="48" rx="14" fill="url(#sg)"/>
+        <defs><linearGradient id="sg" x1="0" y1="0" x2="48" y2="48"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#c026d3"/></linearGradient></defs>
+        <path d="M14 16h20M14 24h14M14 32h17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="36" cy="30" r="6" fill="#f0abfc"/>
+        <path d="M33.5 30l1.5 1.5 3-3" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>NomesApp</h1>
+    <p>Gestão inteligente de registros</p>
+  </div>
+  <div class="splash-loader"><div class="splash-bar"></div></div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app" class="hidden">
+
+  <!-- TOP NAV (mobile) -->
+  <header id="topbar">
+    <button id="btn-back" class="btn-icon hidden" onclick="goBack()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div id="topbar-title">
+      <span class="topbar-app">NomesApp</span>
+    </div>
+    <button id="btn-search-toggle" class="btn-icon" onclick="toggleSearch()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M15 15l-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <!-- SEARCH BAR -->
+  <div id="search-bar" class="hidden">
+    <div class="search-inner">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M15 15l-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar por nome, ID, categoria..." oninput="handleSearch(this.value)" />
+      <button onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <main id="main">
+
+    <!-- PAGE: HOME -->
+    <div id="page-home" class="page active">
+      <div class="home-hero">
+        <div class="hero-left">
+          <p class="hero-eyebrow">Bem-vindo de volta</p>
+          <h2 class="hero-title" id="hero-greeting">Seus Registros</h2>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span id="stat-total">0</span>
+            <label>registros</label>
+          </div>
+          <div class="hero-stat">
+            <span id="stat-bases">0</span>
+            <label>bases</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h3>Categorias</h3>
+      </div>
+      <div id="category-chips" class="chips-row"></div>
+
+      <div class="section-header" style="margin-top:1.5rem;">
+        <h3>Registros</h3>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="records-count" class="count-badge">0</span>
+          <button class="btn-sort" id="btn-sort" onclick="toggleSortMenu()" title="Ordenar">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="sort-menu" class="sort-menu hidden">
+        <button onclick="setSort('nome')" data-sort="nome">Nome A–Z</button>
+        <button onclick="setSort('nome_desc')" data-sort="nome_desc">Nome Z–A</button>
+        <button onclick="setSort('recent')" data-sort="recent">Mais recentes</button>
+        <button onclick="setSort('status')" data-sort="status">Por status</button>
+      </div>
+      <div class="status-filter-row" id="status-filter-row">
+        <button class="status-filter active" data-sf="todos" onclick="setStatusFilter('todos')">Todos</button>
+        <button class="status-filter sf-ativo" data-sf="Ativo" onclick="setStatusFilter('Ativo')">Ativos</button>
+        <button class="status-filter sf-pendente" data-sf="Pendente" onclick="setStatusFilter('Pendente')">Pendentes</button>
+        <button class="status-filter sf-inativo" data-sf="Inativo" onclick="setStatusFilter('Inativo')">Inativos</button>
+      </div>
+      <div id="records-list" class="records-list"></div>
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="36" rx="4" stroke="currentColor" stroke-width="1.5"/><path d="M16 18h16M16 24h10M16 30h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <p>Nenhum registro encontrado</p>
+        <button class="btn-primary" onclick="showPage('new')">Criar primeiro registro</button>
+      </div>
+    </div>
+
+    <!-- PAGE: BASES -->
+    <div id="page-bases" class="page">
+      <div class="page-header">
+        <h2>Bases de Dados</h2>
+        <button class="btn-add" onclick="showNewBaseModal()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Nova Base
+        </button>
+      </div>
+      <div id="bases-list" class="bases-grid"></div>
+    </div>
+
+    <!-- PAGE: NEW RECORD -->
+    <div id="page-new" class="page">
+      <div class="page-header">
+        <h2>Novo Registro</h2>
+      </div>
+      <div class="form-card">
+        <div class="form-group">
+          <label>Base de dados</label>
+          <select id="new-base" onchange="updateFieldsForBase()">
+            <option value="">Selecione uma base...</option>
+          </select>
+        </div>
+        <div id="dynamic-fields"></div>
+        <div id="form-actions" class="hidden">
+          <button class="btn-primary btn-full" onclick="saveRecord()">Salvar registro</button>
+        </div>
+      </div>
+
+      <div class="divider-or"><span>ou</span></div>
+
+      <div class="import-section">
+        <h3>Importar dados</h3>
+        <div class="import-grid">
+          <button class="import-btn" onclick="showImportModal('excel')">
+            <div class="import-icon excel">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#16a34a"/><path d="M8 8l3 4-3 4M13 16h3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span>Excel / CSV</span>
+          </button>
+          <button class="import-btn" onclick="showImportModal('pdf')">
+            <div class="import-icon pdf">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#dc2626"/><path d="M8 9h5M8 12h8M8 15h6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <span>PDF / Word</span>
+          </button>
+          <button class="import-btn" onclick="showImportModal('photo')">
+            <div class="import-icon photo">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#7c3aed"/><circle cx="12" cy="12" r="4" stroke="white" stroke-width="1.5"/><circle cx="16.5" cy="7.5" r="1" fill="white"/></svg>
+            </div>
+            <span>Foto / OCR</span>
+          </button>
+          <button class="import-btn" onclick="showImportModal('sheets')">
+            <div class="import-icon sheets">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#0ea5e9"/><path d="M8 8h8M8 12h8M8 16h5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <span>Google Sheets</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: REPORTS -->
+    <div id="page-reports" class="page">
+      <div class="page-header">
+        <h2>Relatórios</h2>
+      </div>
+      <div class="reports-grid">
+        <div class="report-card">
+          <div class="report-title">Total de registros</div>
+          <div class="report-num" id="rpt-total">0</div>
+          <div class="report-sub">em todas as bases</div>
+        </div>
+        <div class="report-card">
+          <div class="report-title">Ativos</div>
+          <div class="report-num green" id="rpt-active">0</div>
+          <div class="report-sub">status ativo</div>
+        </div>
+        <div class="report-card">
+          <div class="report-title">Pendentes</div>
+          <div class="report-num amber" id="rpt-pending">0</div>
+          <div class="report-sub">aguardando ação</div>
+        </div>
+        <div class="report-card">
+          <div class="report-title">Inativos</div>
+          <div class="report-num muted" id="rpt-inactive">0</div>
+          <div class="report-sub">desativados</div>
+        </div>
+      </div>
+      <div class="section-header" style="margin-top:1.5rem;"><h3>Por categoria</h3></div>
+      <div id="report-by-cat" class="cat-report-list"></div>
+      <div style="margin-top:1.5rem;">
+        <button class="btn-primary btn-full" onclick="exportAllCSV()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Exportar tudo como CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE: SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="page-header"><h2>Configurações</h2></div>
+      <div class="settings-list">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Tema escuro</span>
+            <span class="setting-desc">Interface em modo noturno</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-dark" onchange="toggleDark(this.checked)" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Notificações</span>
+            <span class="setting-desc">Alertas de vencimento</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-notif" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-item" style="cursor:pointer" onclick="showAbout()">
+          <div class="setting-info">
+            <span class="setting-label">Sobre o NomesApp</span>
+            <span class="setting-desc">Versão 1.0.0</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="setting-item danger" onclick="confirmClear()">
+          <div class="setting-info">
+            <span class="setting-label">Limpar todos os dados</span>
+            <span class="setting-desc">Remove registros e bases</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V3h4v1M5 4v8h6V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: RECORD DETAIL -->
+    <div id="page-detail" class="page">
+      <div id="detail-content"></div>
+    </div>
+
+    <!-- PAGE: BASE DETAIL -->
+    <div id="page-basedetail" class="page">
+      <div id="basedetail-content"></div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bottom-nav">
+    <button class="nav-btn active" data-page="home" onclick="showPage('home')">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 9.5L11 3l8 6.5V19a1 1 0 01-1 1H14v-5H8v5H4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span>Início</span>
+    </button>
+    <button class="nav-btn" data-page="bases" onclick="showPage('bases')">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 8h16M8 8v12" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>Bases</span>
+    </button>
+    <button class="nav-btn nav-btn-add" onclick="showPage('new')">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="12" fill="url(#nb)"/><defs><linearGradient id="nb" x1="1" y1="1" x2="25" y2="25"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#c026d3"/></linearGradient></defs><path d="M13 8v10M8 13h10" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>Novo</span>
+    </button>
+    <button class="nav-btn" data-page="reports" onclick="showPage('reports')">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="12" width="4" height="7" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="9" y="7" width="4" height="12" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="15" y="3" width="4" height="16" rx="1" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>Relatórios</span>
+    </button>
+    <button class="nav-btn" data-page="settings" onclick="showPage('settings')">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M4.22 17.78l1.42-1.42M16.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Config</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- MODALS -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()"></div>
+
+<div id="modal-newbase" class="modal hidden">
+  <div class="modal-header">
+    <h3>Nova Base de Dados</h3>
+    <button onclick="closeModal()" class="btn-icon">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label>Nome da base</label>
+      <input type="text" id="nb-name" placeholder="Ex: Turma A 2025, Pacientes..." />
+    </div>
+    <div class="form-group">
+      <label>Categoria</label>
+      <select id="nb-category">
+        <option value="Alunos">Alunos</option>
+        <option value="Pacientes">Pacientes</option>
+        <option value="Bolsistas">Bolsistas</option>
+        <option value="Produtos">Produtos</option>
+        <option value="Funcionários">Funcionários</option>
+        <option value="Clientes">Clientes</option>
+        <option value="Outro">Outro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Campos (selecione os que deseja)</label>
+      <div class="fields-picker" id="fields-picker">
+        <label class="field-check"><input type="checkbox" value="nome" checked disabled /> Nome *</label>
+        <label class="field-check"><input type="checkbox" value="cpf" /> CPF</label>
+        <label class="field-check"><input type="checkbox" value="email" /> Email</label>
+        <label class="field-check"><input type="checkbox" value="telefone" /> Telefone</label>
+        <label class="field-check"><input type="checkbox" value="matricula" /> Matrícula/ID</label>
+        <label class="field-check"><input type="checkbox" value="data_nasc" /> Data de Nasc.</label>
+        <label class="field-check"><input type="checkbox" value="status" checked /> Status</label>
+        <label class="field-check"><input type="checkbox" value="observacoes" /> Observações</label>
+        <label class="field-check"><input type="checkbox" value="data_entrada" /> Data de entrada</label>
+        <label class="field-check"><input type="checkbox" value="endereco" /> Endereço</label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
+    <button class="btn-primary" onclick="createBase()">Criar Base</button>
+  </div>
+</div>
+
+<div id="modal-import" class="modal hidden">
+  <div class="modal-header">
+    <h3 id="import-modal-title">Importar Dados</h3>
+    <button onclick="closeModal()" class="btn-icon">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label>Destino: base de dados</label>
+      <select id="import-base-select">
+        <option value="">Selecione a base de destino...</option>
+      </select>
+    </div>
+    <div class="import-drop-zone" id="drop-zone" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+      <div class="drop-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 8v16M14 18l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 28h24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <p>Arraste seu arquivo aqui</p>
+      <span>ou</span>
+      <label class="btn-outline file-label">
+        Escolher arquivo
+        <input type="file" id="import-file" accept=".csv,.xlsx,.pdf,.jpg,.png,.jpeg" onchange="handleFileImport(this)" style="display:none" />
+      </label>
+      <p class="drop-hint" id="import-hint">Aceita CSV, Excel, PDF, JPG, PNG</p>
+    </div>
+    <div id="import-preview" class="hidden"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
+    <button class="btn-primary" id="btn-confirm-import" onclick="confirmImport()" disabled>Importar</button>
+  </div>
+</div>
+
+<div id="modal-toast" class="toast hidden"></div>
+
+<!-- CONFIRM MODAL -->
+<div id="modal-confirm" class="modal hidden" style="max-height:auto">
+  <div class="modal-body" style="text-align:center;padding:32px 24px 16px">
+    <div id="confirm-icon" style="margin:0 auto 16px;width:52px;height:52px;border-radius:50%;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#ef4444" stroke-width="1.5"/></svg>
+    </div>
+    <h3 id="confirm-title" style="font-family:var(--font-display);font-size:17px;margin-bottom:8px"></h3>
+    <p id="confirm-msg" style="font-size:13px;color:var(--text2);line-height:1.6"></p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
+    <button class="btn-primary" id="confirm-ok" style="background:linear-gradient(135deg,#dc2626,#991b1b)">Confirmar</button>
+  </div>
+</div>
+
+<!-- PHOTO MODAL -->
+<div id="modal-photo" class="modal hidden">
+  <div class="modal-header">
+    <h3>Foto do registro</h3>
+    <button onclick="closeModal()" class="btn-icon">✕</button>
+  </div>
+  <div class="modal-body" style="text-align:center">
+    <div id="photo-preview-wrap" style="margin-bottom:16px">
+      <div id="photo-placeholder" style="width:96px;height:96px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px;color:var(--text3)">📷</div>
+      <img id="photo-preview-img" style="display:none;width:96px;height:96px;border-radius:50%;object-fit:cover;margin:0 auto;border:2px solid rgba(124,58,237,0.4)" />
+    </div>
+    <label class="btn-outline file-label" style="display:inline-block">
+      Escolher foto
+      <input type="file" id="photo-file-input" accept="image/*" onchange="handlePhotoSelect(this)" style="display:none" />
+    </label>
+    <p style="font-size:12px;color:var(--text3);margin-top:10px">JPG ou PNG · Máx. 2MB</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" id="btn-remove-photo" onclick="removePhoto()" style="display:none">Remover</button>
+    <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
+    <button class="btn-primary" onclick="savePhoto()">Salvar foto</button>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
